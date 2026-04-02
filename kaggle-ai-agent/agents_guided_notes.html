@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Agents — Guided Notes</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Georgia', serif;
+  background: #f5f3ee;
+  color: #1c1c1c;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.page {
+  max-width: 780px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 52px 60px 80px;
+  min-height: 100vh;
+}
+
+/* ── Save status ── */
+#save-status {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  color: #888;
+  background: #fff;
+  border: 0.5px solid #ddd;
+  border-radius: 20px;
+  padding: 4px 12px;
+  z-index: 100;
+  transition: color 0.3s;
+}
+#save-status.saved { color: #0F6E56; }
+#save-status.saving { color: #BA7517; }
+
+/* ── Header ── */
+.header {
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #1c1c1c;
+}
+.header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  margin-bottom: 4px;
+}
+.header .doc-sub {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+  font-family: Arial, sans-serif;
+  margin-bottom: 16px;
+}
+.name-row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.name-field { display: flex; flex-direction: column; gap: 3px; }
+.name-field label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #999;
+  font-family: Arial, sans-serif;
+}
+.name-field input {
+  border: none;
+  border-bottom: 1px solid #bbb;
+  padding: 3px 0;
+  font-family: Georgia, serif;
+  font-size: 14px;
+  background: transparent;
+  outline: none;
+  width: 200px;
+}
+.name-field input:focus { border-bottom-color: #1c1c1c; }
+
+/* ── How to use banner ── */
+.how-to {
+  background: #f0ede6;
+  border-left: 3px solid #1c1c1c;
+  padding: 12px 16px;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  color: #444;
+  margin-bottom: 40px;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.7;
+}
+.how-to strong { font-weight: 700; color: #1c1c1c; }
+
+/* ── Reading sections ── */
+.reading-section {
+  margin-bottom: 44px;
+}
+
+.rs-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid #1c1c1c;
+}
+.rs-pages {
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  background: #1c1c1c;
+  color: #fff;
+  padding: 2px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.rs-title {
+  font-size: 15px;
+  font-weight: 700;
+  font-family: Arial, sans-serif;
+  letter-spacing: -0.2px;
+}
+.rs-instruction {
+  font-size: 11px;
+  color: #888;
+  font-family: Arial, sans-serif;
+  font-style: italic;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+/* ── Guided note entries ── */
+.note-entry {
+  margin-bottom: 18px;
+}
+.ne-prompt {
+  font-size: 13px;
+  font-family: Arial, sans-serif;
+  color: #333;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+.ne-prompt strong { font-weight: 700; }
+.ne-cue {
+  font-size: 11px;
+  font-family: Arial, sans-serif;
+  color: #aaa;
+  margin-bottom: 5px;
+  font-style: italic;
+}
+
+textarea {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #d0d0d0;
+  padding: 6px 2px;
+  font-family: Georgia, serif;
+  font-size: 13.5px;
+  line-height: 1.65;
+  resize: none;
+  background: transparent;
+  outline: none;
+  color: #1c1c1c;
+  display: block;
+  overflow: hidden;
+}
+textarea:focus { border-bottom-color: #1c1c1c; background: #fafaf7; }
+
+/* lined textarea variant */
+textarea.lined {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent calc(1.65em - 1px),
+    #eee calc(1.65em - 1px),
+    #eee calc(1.65em)
+  );
+  background-attachment: local;
+  padding: 0 2px;
+  line-height: 1.65em;
+}
+
+/* fill-in line */
+.fill-line {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.fill-line .fl-label {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  color: #555;
+  white-space: nowrap;
+  padding-bottom: 5px;
+  min-width: 10px;
+}
+.fill-line input[type=text] {
+  flex: 1;
+  border: none;
+  border-bottom: 1px solid #d0d0d0;
+  padding: 4px 2px;
+  font-family: Georgia, serif;
+  font-size: 13.5px;
+  background: transparent;
+  outline: none;
+  color: #1c1c1c;
+}
+.fill-line input[type=text]:focus { border-bottom-color: #1c1c1c; }
+
+/* blank with label inline */
+.inline-fill {
+  font-family: Arial, sans-serif;
+  font-size: 12.5px;
+  color: #333;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.inline-fill span { white-space: nowrap; }
+.inline-fill input[type=text] {
+  flex: 1;
+  min-width: 120px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  padding: 3px 2px;
+  font-family: Georgia, serif;
+  font-size: 13px;
+  background: transparent;
+  outline: none;
+}
+.inline-fill input:focus { border-bottom-color: #1c1c1c; }
+
+/* grid layouts */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+/* mini card for components */
+.mini-card {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 12px;
+}
+.mc-label {
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+.mc-label.brain { background: #533AB7; }
+.mc-label.hands { background: #0F6E56; }
+.mc-label.nervous { background: #993C1D; }
+.mc-label.deploy { background: #444; }
+
+/* loop box */
+.loop-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+.loop-box {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 6px;
+}
+.lb-num {
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #ccc;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.lb-name {
+  font-family: Arial, sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+/* levels table */
+.levels-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-family: Arial, sans-serif;
+}
+.levels-table th {
+  background: #1c1c1c;
+  color: #fff;
+  padding: 7px 10px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+}
+.levels-table td {
+  border: 1px solid #e0e0e0;
+  padding: 8px 10px;
+  vertical-align: top;
+}
+.levels-table tr:nth-child(even) td { background: #fafaf7; }
+.levels-table textarea {
+  min-height: 40px;
+  font-size: 12px;
+  border-bottom: none;
+}
+.level-pill {
+  display: inline-block;
+  background: #eee;
+  border-radius: 3px;
+  padding: 1px 7px;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+/* divider */
+hr { border: none; border-top: 1px solid #e8e5de; margin: 32px 0; }
+
+/* ── Comprehension section ── */
+.comp-header {
+  background: #1c1c1c;
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 4px 4px 0 0;
+  margin-bottom: 0;
+}
+.comp-header h2 {
+  font-size: 15px;
+  font-weight: 700;
+  font-family: Arial, sans-serif;
+  letter-spacing: -0.2px;
+  margin-bottom: 3px;
+}
+.comp-header p {
+  font-size: 11px;
+  color: #aaa;
+  font-family: Arial, sans-serif;
+}
+.comp-body {
+  border: 1.5px solid #1c1c1c;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.comp-q {
+  margin-bottom: 22px;
+}
+.comp-q-num {
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #aaa;
+  margin-bottom: 3px;
+}
+.comp-q-text {
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: Arial, sans-serif;
+  color: #1c1c1c;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+.comp-q-sub {
+  font-size: 11.5px;
+  font-family: Arial, sans-serif;
+  color: #777;
+  margin-bottom: 7px;
+  font-style: italic;
+}
+
+/* reflection */
+.reflection-box {
+  border: 1.5px solid #1c1c1c;
+  border-radius: 4px;
+  padding: 24px;
+}
+.rb-title {
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/* print */
+@media print {
+  #save-status { display: none; }
+  body { background: #fff; }
+  .page { padding: 24px 32px; }
+  textarea { border-bottom: 1px solid #bbb; background: transparent !important; }
+  input[type=text] { border-bottom: 1px solid #bbb !important; background: transparent !important; }
+}
+
+@media (max-width: 600px) {
+  .page { padding: 24px 18px; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .loop-grid { grid-template-columns: 1fr 1fr; }
+  .name-row { flex-direction: column; }
+  .name-field input { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div id="save-status">auto-save on</div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Introduction to Agents</h1>
+    <div class="doc-sub">Guided reading notes — Google Cloud Whitepaper, November 2025</div>
+    <div class="name-row">
+      <div class="name-field">
+        <label>Name</label>
+        <input type="text" id="meta-name" placeholder="">
+      </div>
+      <div class="name-field">
+        <label>Date</label>
+        <input type="text" id="meta-date" placeholder="">
+      </div>
+    </div>
+  </div>
+
+  <div class="how-to">
+    <strong>How to use this document:</strong> Read each section of the whitepaper, then fill in the notes on the matching page here before moving on. Your answers save automatically to this browser. At the end, answer the comprehension questions from memory — treat them like a short quiz.
+  </div>
+
+
+  <!-- ═══════════════════════════════════
+       READING SECTION 1
+  ══════════════════════════════════════ -->
+  <div class="reading-section">
+    <div class="rs-header">
+      <div class="rs-pages">pp. 6–7</div>
+      <div class="rs-title">From Predictive AI to Autonomous Agents</div>
+    </div>
+    <div class="rs-instruction">Read these pages, then complete the notes below before continuing.</div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">The old AI paradigm vs. the new one — what is the core difference?</div>
+      <div class="ne-cue">Old: passive, discrete, requires human direction at every step. New: ___</div>
+      <textarea id="s1-q1" rows="3" class="lined" placeholder="Write it in your own words..."></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">Complete this sentence in your own words:</div>
+      <div class="inline-fill">
+        <span>An agent is not simply a model in a static workflow — it is</span>
+        <input type="text" id="s1-q2" placeholder="">
+      </div>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">What does the whitepaper mean by the shift from "prompt engineering" to "context engineering"?</div>
+      <textarea id="s1-q3" rows="3" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">One question or observation from this section you want to come back to:</div>
+      <textarea id="s1-q4" rows="2" placeholder=""></textarea>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════
+       READING SECTION 2
+  ══════════════════════════════════════ -->
+  <div class="reading-section">
+    <div class="rs-header">
+      <div class="rs-pages">pp. 8–10</div>
+      <div class="rs-title">Introduction to AI Agents — Core Architecture</div>
+    </div>
+    <div class="rs-instruction">Fill in each component card as you read. Use the exact metaphors the paper uses, then add your own interpretation.</div>
+
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="mini-card">
+        <div class="mc-label brain">Model — "The Brain"</div>
+        <div class="ne-cue" style="font-family:Arial,sans-serif;font-size:11px;color:#aaa;margin-bottom:6px;">What is its role?</div>
+        <textarea id="s2-brain-role" rows="2" placeholder=""></textarea>
+        <div class="ne-cue" style="font-family:Arial,sans-serif;font-size:11px;color:#aaa;margin:6px 0;">What does "agentic system as context window curator" mean here?</div>
+        <textarea id="s2-brain-curation" rows="2" placeholder=""></textarea>
+      </div>
+      <div class="mini-card">
+        <div class="mc-label hands">Tools — "The Hands"</div>
+        <div class="ne-cue" style="font-family:Arial,sans-serif;font-size:11px;color:#aaa;margin-bottom:6px;">What is their role?</div>
+        <textarea id="s2-tools-role" rows="2" placeholder=""></textarea>
+        <div class="ne-cue" style="font-family:Arial,sans-serif;font-size:11px;color:#aaa;margin:6px 0;">Two types of things tools can do:</div>
+        <div class="fill-line"><div class="fl-label">1.</div><input type="text" id="s2-tools-t1"></div>
+        <div class="fill-line"><div class="fl-label">2.</div><input type="text" id="s2-tools-t2"></div>
+      </div>
+      <div class="mini-card">
+        <div class="mc-label nervous">Orchestration — "Nervous System"</div>
+        <div class="ne-cue" style="font-family:Arial,sans-serif;font-size:11px;color:#aaa;margin-bottom:6px;">What does it govern?</div>
+        <textarea id="s2-orch-role" rows="2" placeholder=""></textarea>
+        <div class="ne-cue" style="font-family:Arial,sans-serif;font-size:11px;color:#aaa;margin:6px 0;">Examples of reasoning techniques it uses:</div>
+        <textarea id="s2-orch-tech" rows="2" placeholder="e.g. Chain-of-Thought, ReAct..."></textarea>
+      </div>
+      <div class="mini-card">
+        <div class="mc-label deploy">Deployment — "Body &amp; Legs"</div>
+        <div class="ne-cue" style="font-family:Arial,sans-serif;font-size:11px;color:#aaa;margin-bottom:6px;">Why does this matter beyond a laptop prototype?</div>
+        <textarea id="s2-deploy-role" rows="2" placeholder=""></textarea>
+        <div class="ne-cue" style="font-family:Arial,sans-serif;font-size:11px;color:#aaa;margin:6px 0;">How can other agents access a deployed agent?</div>
+        <textarea id="s2-deploy-access" rows="2" placeholder=""></textarea>
+      </div>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">The developer role is compared to a "director" rather than a "bricklayer." What changes in how you think about building software?</div>
+      <textarea id="s2-director" rows="3" class="lined" placeholder=""></textarea>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════
+       READING SECTION 3
+  ══════════════════════════════════════ -->
+  <div class="reading-section">
+    <div class="rs-header">
+      <div class="rs-pages">pp. 10–13</div>
+      <div class="rs-title">The Agentic Problem-Solving Process (5 Steps)</div>
+    </div>
+    <div class="rs-instruction">Label and summarise each step as you read. Then apply the loop to the order-tracking example in the paper.</div>
+
+    <div class="loop-grid">
+      <div class="loop-box">
+        <div class="lb-num">1</div>
+        <div class="lb-name">Get the Mission</div>
+        <textarea id="s3-step1" rows="3" placeholder="Who/what triggers this? What counts as a mission?"></textarea>
+      </div>
+      <div class="loop-box">
+        <div class="lb-num">2</div>
+        <div class="lb-name">Scan the Scene</div>
+        <textarea id="s3-step2" rows="3" placeholder="What resources does the agent check?"></textarea>
+      </div>
+      <div class="loop-box">
+        <div class="lb-num">3</div>
+        <div class="lb-name">Think It Through</div>
+        <textarea id="s3-step3" rows="3" placeholder="Who/what drives this step? What comes out of it?"></textarea>
+      </div>
+      <div class="loop-box">
+        <div class="lb-num">4</div>
+        <div class="lb-name">Take Action</div>
+        <textarea id="s3-step4" rows="3" placeholder="What does the orchestration layer do here?"></textarea>
+      </div>
+      <div class="loop-box">
+        <div class="lb-num">5</div>
+        <div class="lb-name">Observe &amp; Iterate</div>
+        <textarea id="s3-step5" rows="3" placeholder="When does the loop stop?"></textarea>
+      </div>
+    </div>
+
+    <div class="note-entry" style="margin-top:16px;">
+      <div class="ne-prompt">Walk through the order #12345 example step by step in your own words:</div>
+      <textarea id="s3-example" rows="6" class="lined" placeholder="Step 1: The mission is the user's question...&#10;Step 2: The agent scans...&#10;Step 3: It reasons...&#10;Step 4: It calls find_order()...&#10;Step 5: It observes... then calls get_shipping_status()..."></textarea>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════
+       READING SECTION 4
+  ══════════════════════════════════════ -->
+  <div class="reading-section">
+    <div class="rs-header">
+      <div class="rs-pages">pp. 14–18</div>
+      <div class="rs-title">A Taxonomy of Agentic Systems (Levels 0–4)</div>
+    </div>
+    <div class="rs-instruction">Fill in the table as you read each level. The last column is yours — invent an example not in the paper.</div>
+
+    <table class="levels-table">
+      <thead>
+        <tr>
+          <th style="width:52px;">Level</th>
+          <th style="width:150px;">Name</th>
+          <th>Key capability added</th>
+          <th style="width:140px;">Your own example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="level-pill">L0</span></td>
+          <td style="font-size:11px;color:#555;">Core Reasoning</td>
+          <td><textarea id="tax-l0-cap" rows="2" placeholder=""></textarea></td>
+          <td><textarea id="tax-l0-ex" rows="2" placeholder=""></textarea></td>
+        </tr>
+        <tr>
+          <td><span class="level-pill">L1</span></td>
+          <td style="font-size:11px;color:#555;">Connected Problem-Solver</td>
+          <td><textarea id="tax-l1-cap" rows="2" placeholder=""></textarea></td>
+          <td><textarea id="tax-l1-ex" rows="2" placeholder=""></textarea></td>
+        </tr>
+        <tr>
+          <td><span class="level-pill">L2</span></td>
+          <td style="font-size:11px;color:#555;">Strategic Problem-Solver</td>
+          <td><textarea id="tax-l2-cap" rows="2" placeholder=""></textarea></td>
+          <td><textarea id="tax-l2-ex" rows="2" placeholder=""></textarea></td>
+        </tr>
+        <tr>
+          <td><span class="level-pill">L3</span></td>
+          <td style="font-size:11px;color:#555;">Collaborative Multi-Agent</td>
+          <td><textarea id="tax-l3-cap" rows="2" placeholder=""></textarea></td>
+          <td><textarea id="tax-l3-ex" rows="2" placeholder=""></textarea></td>
+        </tr>
+        <tr>
+          <td><span class="level-pill">L4</span></td>
+          <td style="font-size:11px;color:#555;">Self-Evolving System</td>
+          <td><textarea id="tax-l4-cap" rows="2" placeholder=""></textarea></td>
+          <td><textarea id="tax-l4-ex" rows="2" placeholder=""></textarea></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note-entry" style="margin-top:16px;">
+      <div class="ne-prompt">What is "context engineering" and why does it become the defining skill at Level 2?</div>
+      <textarea id="s4-context-eng" rows="3" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">In the coffee-shop example (p.16), what exactly is the context engineering move the agent makes?</div>
+      <textarea id="s4-coffee" rows="2" placeholder="It synthesises the output of one step (Millbrae, CA) into the input query for the next..."></textarea>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════
+       READING SECTION 5
+  ══════════════════════════════════════ -->
+  <div class="reading-section">
+    <div class="rs-header">
+      <div class="rs-pages">pp. 19–26</div>
+      <div class="rs-title">Core Architecture in Practice — Model, Tools, Orchestration</div>
+    </div>
+    <div class="rs-instruction">These pages go deeper into how you actually build each layer. Note the concrete design advice.</div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">Why is choosing the model with the best benchmark score a mistake for agents?</div>
+      <textarea id="s5-model-bench" rows="3" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">What is model routing, and what problem does it solve?</div>
+      <div class="ne-cue">The paper gives the example of Gemini 2.5 Pro for planning vs. Gemini 2.5 Flash for simpler tasks.</div>
+      <textarea id="s5-routing" rows="3" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">The two categories of tools and how they differ:</div>
+      <div class="grid-2" style="margin-top:6px;">
+        <div>
+          <div style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#0F6E56;margin-bottom:4px;">Retrieval tools (grounding)</div>
+          <textarea id="s5-retrieval" rows="3" placeholder="What they do, examples (RAG, NL2SQL)..."></textarea>
+        </div>
+        <div>
+          <div style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#993C1D;margin-bottom:4px;">Action tools (executing)</div>
+          <textarea id="s5-action" rows="3" placeholder="What they do, examples (API calls, code execution, HITL)..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">What is MCP (Model Context Protocol) and why is it becoming popular alongside OpenAPI?</div>
+      <textarea id="s5-mcp" rows="3" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">A production-grade orchestration framework must be three things. Define each:</div>
+      <div class="fill-line"><div class="fl-label" style="min-width:90px;">Open means:</div><input type="text" id="s5-open"></div>
+      <div class="fill-line"><div class="fl-label" style="min-width:90px;">Precise means:</div><input type="text" id="s5-precise"></div>
+      <div class="fill-line"><div class="fl-label" style="min-width:90px;">Observable means:</div><input type="text" id="s5-observable"></div>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">Three multi-agent design patterns and when to use each:</div>
+      <div class="fill-line"><div class="fl-label" style="min-width:120px;">Coordinator:</div><input type="text" id="s5-coord"></div>
+      <div class="fill-line"><div class="fl-label" style="min-width:120px;">Sequential:</div><input type="text" id="s5-seq"></div>
+      <div class="fill-line"><div class="fl-label" style="min-width:120px;">Iterative Refinement:</div><input type="text" id="s5-iter"></div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════
+       READING SECTION 6
+  ══════════════════════════════════════ -->
+  <div class="reading-section">
+    <div class="rs-header">
+      <div class="rs-pages">pp. 27–31</div>
+      <div class="rs-title">Agent Ops — Evaluating, Debugging &amp; Improving</div>
+    </div>
+    <div class="rs-instruction">This section introduces a new operational discipline. Capture the key practices as you read.</div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">Why can't you use a simple pass/fail unit test for agents?</div>
+      <textarea id="s6-passfail" rows="3" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">"LM as Judge" — what is it and what does a good rubric check for?</div>
+      <textarea id="s6-lmjudge" rows="3" class="lined" placeholder="Did it give the right answer? Was it factually grounded? Did it follow instructions?..."></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">What is a golden dataset and how should you build one?</div>
+      <textarea id="s6-golden" rows="3" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">What does an OpenTelemetry trace show you that metrics dashboards cannot?</div>
+      <textarea id="s6-traces" rows="3" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">The Agent Ops feedback loop — how does a user bug become a permanent fix?</div>
+      <div class="ne-cue">Think: collect → replicate → convert → prevent</div>
+      <textarea id="s6-loop" rows="3" class="lined" placeholder=""></textarea>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════
+       READING SECTION 7
+  ══════════════════════════════════════ -->
+  <div class="reading-section">
+    <div class="rs-header">
+      <div class="rs-pages">pp. 31–34</div>
+      <div class="rs-title">Agent Interoperability — Humans, Agents &amp; Money</div>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">MCP vs. A2A — what is the distinction between them?</div>
+      <div class="grid-2" style="margin-top:6px;">
+        <div>
+          <div style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#533AB7;margin-bottom:4px;">MCP</div>
+          <textarea id="s7-mcp" rows="3" placeholder="Purpose, what it connects..."></textarea>
+        </div>
+        <div>
+          <div style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#0F6E56;margin-bottom:4px;">A2A</div>
+          <textarea id="s7-a2a" rows="3" placeholder="Purpose, what it enables..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">What is an Agent Card and what problem does it solve?</div>
+      <textarea id="s7-agentcard" rows="2" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">What trust problem arises when agents transact with money, and how do AP2 and x402 address it?</div>
+      <textarea id="s7-money" rows="3" class="lined" placeholder=""></textarea>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════
+       READING SECTION 8
+  ══════════════════════════════════════ -->
+  <div class="reading-section">
+    <div class="rs-header">
+      <div class="rs-pages">pp. 34–41</div>
+      <div class="rs-title">Security, Identity &amp; Governance</div>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">The trust trade-off — what are the two risks you balance when giving an agent power?</div>
+      <div class="fill-line"><div class="fl-label" style="min-width:70px;">Risk 1:</div><input type="text" id="s8-risk1" placeholder="rogue actions..."></div>
+      <div class="fill-line"><div class="fl-label" style="min-width:70px;">Risk 2:</div><input type="text" id="s8-risk2" placeholder="sensitive data disclosure..."></div>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">The defense-in-depth approach has two layers. Describe each:</div>
+      <div class="fill-line"><div class="fl-label" style="min-width:70px;">Layer 1:</div><input type="text" id="s8-layer1" placeholder="deterministic guardrails — hardcoded rules..."></div>
+      <div class="fill-line"><div class="fl-label" style="min-width:70px;">Layer 2:</div><input type="text" id="s8-layer2" placeholder="reasoning-based defenses — AI-powered guard models..."></div>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">Agents are called a "third category of principal." What does this mean for how you manage identity and permissions?</div>
+      <textarea id="s8-principal" rows="3" class="lined" placeholder="Users use OAuth/SSO. Services use IAM. Agents use..."></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">What is "agent sprawl" and what two functions does a central governance control plane serve?</div>
+      <textarea id="s8-sprawl" rows="3" class="lined" placeholder=""></textarea>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════
+       READING SECTION 9
+  ══════════════════════════════════════ -->
+  <div class="reading-section">
+    <div class="rs-header">
+      <div class="rs-pages">pp. 42–50</div>
+      <div class="rs-title">How Agents Learn, Evolve &amp; Advanced Examples</div>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">What is "agent aging" and why is it a problem at scale?</div>
+      <textarea id="s9-aging" rows="2" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">Two categories of adaptation techniques and what each involves:</div>
+      <div class="fill-line"><div class="fl-label" style="min-width:180px;">Enhanced context engineering:</div><input type="text" id="s9-adapt1"></div>
+      <div class="fill-line"><div class="fl-label" style="min-width:180px;">Tool optimisation &amp; creation:</div><input type="text" id="s9-adapt2"></div>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">What makes the "Agent Gym" different from ordinary in-line learning?</div>
+      <textarea id="s9-gym" rows="2" class="lined" placeholder="It is off-production, uses simulation, synthetic data generators, red-teaming..."></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">Co-Scientist and AlphaEvolve — one key thing each illustrates about advanced agents:</div>
+      <div class="fill-line"><div class="fl-label" style="min-width:130px;">Co-Scientist shows:</div><input type="text" id="s9-cosci"></div>
+      <div class="fill-line"><div class="fl-label" style="min-width:130px;">AlphaEvolve shows:</div><input type="text" id="s9-alpha"></div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════
+       COMPREHENSION QUESTIONS
+  ══════════════════════════════════════ -->
+  <div class="comp-header">
+    <h2>Comprehension Questions</h2>
+    <p>Close the whitepaper and answer from memory. These test understanding, not recall.</p>
+  </div>
+  <div class="comp-body">
+
+    <div class="comp-q">
+      <div class="comp-q-num">Question 1</div>
+      <div class="comp-q-text">Explain the "context window curation" metaphor in plain English. Why does the whitepaper call this the essence of what an agent is?</div>
+      <textarea id="cq1" rows="4" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="comp-q">
+      <div class="comp-q-num">Question 2</div>
+      <div class="comp-q-text">A product manager says "let's just pick the model with the best leaderboard score." What is the flaw in this reasoning, and what should they do instead?</div>
+      <textarea id="cq2" rows="4" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="comp-q">
+      <div class="comp-q-num">Question 3</div>
+      <div class="comp-q-text">What is the difference between MCP and A2A? Give a concrete scenario where each would be the right choice.</div>
+      <textarea id="cq3" rows="4" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="comp-q">
+      <div class="comp-q-num">Question 4</div>
+      <div class="comp-q-text">Describe the "defense-in-depth" approach to agent security. Why can't you rely on the model's own judgment alone?</div>
+      <textarea id="cq4" rows="4" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="comp-q">
+      <div class="comp-q-num">Question 5</div>
+      <div class="comp-q-text">You are evaluating an agent and notice quality has dropped over time. Walk through the Agent Ops process for diagnosing and fixing the problem — from detecting the issue to preventing it from recurring.</div>
+      <div class="comp-q-sub">Use the specific tools and processes described in the whitepaper.</div>
+      <textarea id="cq5" rows="6" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="comp-q">
+      <div class="comp-q-num">Question 6</div>
+      <div class="comp-q-text">Your company wants to build an agent that can autonomously research competitors, draft a report, and email it to stakeholders weekly. What agent level is this, which multi-agent design pattern fits, and what are the top two security concerns you must address?</div>
+      <textarea id="cq6" rows="5" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="comp-q" style="margin-bottom:0;">
+      <div class="comp-q-num">Question 7</div>
+      <div class="comp-q-text">In your own words, why does the whitepaper argue that success in agent development depends more on "engineering rigor applied to the whole system" than on the initial prompt?</div>
+      <textarea id="cq7" rows="4" class="lined" placeholder=""></textarea>
+    </div>
+
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════
+       REFLECTION
+  ══════════════════════════════════════ -->
+  <div class="reflection-box">
+    <div class="rb-title">Reflection — after finishing</div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">One sentence: the most important idea in this whitepaper.</div>
+      <textarea id="r1" rows="2" placeholder="If you could only take one thing away..."></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">What most surprised or challenged an assumption you had going in?</div>
+      <textarea id="r2" rows="3" class="lined" placeholder=""></textarea>
+    </div>
+
+    <div class="note-entry">
+      <div class="ne-prompt">Three things you want to explore further:</div>
+      <div class="fill-line"><div class="fl-label">1.</div><input type="text" id="r3a"></div>
+      <div class="fill-line"><div class="fl-label">2.</div><input type="text" id="r3b"></div>
+      <div class="fill-line"><div class="fl-label">3.</div><input type="text" id="r3c"></div>
+    </div>
+
+    <div class="note-entry" style="margin-bottom:0;">
+      <div class="ne-prompt">One concrete next action in the next 2 weeks:</div>
+      <textarea id="r4" rows="2" placeholder="Build, read, discuss, prototype..."></textarea>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;font-size:10px;color:#bbb;text-align:center;font-family:Arial,sans-serif;padding-top:12px;border-top:1px solid #eee;">
+    Guided notes for "Introduction to Agents and Agent Architectures" — Google Cloud, November 2025
+  </div>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'agents_guided_notes_v2';
+const status = document.getElementById('save-status');
+let saveTimer;
+
+function getAllIds() {
+  const ids = [];
+  document.querySelectorAll('textarea, input[type=text]').forEach(el => {
+    if (el.id) ids.push(el.id);
+  });
+  return ids;
+}
+
+function saveAll() {
+  status.textContent = 'saving…';
+  status.className = 'saving';
+  const data = {};
+  getAllIds().forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.value;
+  });
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    status.textContent = 'saved ✓';
+    status.className = 'saved';
+  } catch(e) {
+    status.textContent = 'save failed';
+    status.className = '';
+  }
+}
+
+function loadAll() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    Object.keys(data).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = data[id];
+    });
+  } catch(e) {}
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadAll();
+
+  document.querySelectorAll('textarea').forEach(ta => {
+    autoResize(ta);
+    ta.addEventListener('input', () => {
+      autoResize(ta);
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveAll, 900);
+    });
+  });
+
+  document.querySelectorAll('input[type=text]').forEach(inp => {
+    inp.addEventListener('input', () => {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveAll, 900);
+    });
+  });
+});
+</script>
+</body>
+</html>
